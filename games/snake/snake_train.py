@@ -23,4 +23,4 @@ snake = Snake(grid_size)
 agent = Agent(model=model, memory_size=-1, nb_frames=nb_frames)
 agent.train(snake, batch_size=64, nb_epoch=epochs, gamma=0.8)
 
-model.save('snake' + str(epochs) + '.h5')
+model.save('nets/snake' + str(epochs) + '.h5')

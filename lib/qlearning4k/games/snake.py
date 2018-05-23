@@ -3,9 +3,9 @@ __author__ = "Fariz Rahman"
 import numpy as np
 from .game import Game
 
-
-actions = {0:'left', 1:'right', 2:'up', 3:'down', 4:'idle'}
+actions = {0: 'left', 1: 'right', 2: 'up', 3: 'down', 4: 'idle'}
 forbidden_moves = [(0, 1), (1, 0), (2, 3), (3, 2)]
+
 
 class Snake(Game):
 
@@ -18,6 +18,7 @@ class Snake(Game):
     @property
     def name(self):
         return "Snake"
+
     @property
     def nb_actions(self):
         return 5
@@ -80,7 +81,7 @@ class Snake(Game):
         self.snake.pop()
 
     def get_state(self):
-        canvas = np.ones((self.grid_size, ) * 2)
+        canvas = np.ones((self.grid_size,) * 2)
         canvas[1:-1, 1:-1] = 0.
         for seg in self.snake:
             canvas[seg[0], seg[1]] = 1.
@@ -100,7 +101,7 @@ class Snake(Game):
         grid_size = self.grid_size
         snake_length = self.snake_length
         head_x = (grid_size - snake_length) // 2
-        self.snake = [(x, grid_size // 2) for x in range (head_x, head_x + snake_length)]
+        self.snake = [(x, grid_size // 2) for x in range(head_x, head_x + snake_length)]
         self.game_over = False
         self.scored = False
         self.drop_fruit()

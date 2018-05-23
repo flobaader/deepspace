@@ -4,21 +4,24 @@ from keras.optimizers import SGD
 from lib import kerasimo
 import numpy as np
 
+
 X = np.array([[0,0], [0,1], [1,0], [1,1]])
-y = np.array([[0], [0], [0], [1]])
+y = np.array([[0], [1], [1], [0]])
 
 model = Sequential()
-model.add(Dense(1, activation='sigmoid', input_dim=2))
+model.add(Dense(2, activation='tanh', input_dim=2))
+model.add(Dense(1, activation='sigmoid'))
 
 sgd = SGD(lr=0.1)
 
 model.compile(loss='binary_crossentropy', optimizer=sgd)
 
-model.fit(X, y, batch_size=1, epochs=300)
+model.fit(X, y, batch_size=1, epochs=100)
 
 print(model.predict_proba(X))
 
-#kerasimo.ToSVG('and', model, X)
+kerasimo.ToSVG('or', model, X)
+
 
 
 

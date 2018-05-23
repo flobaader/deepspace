@@ -111,7 +111,7 @@ class Agent:
 		plt.pause(0.05)
 
 	def play(self, game, nb_epoch=10, epsilon=0., visualize=True):
-		plt.title('Snake is running!')
+		plt.title(game.name)
 		self.check_game_compatibility(game)
 		model = self.model
 		win_count = 0

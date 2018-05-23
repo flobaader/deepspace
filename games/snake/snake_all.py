@@ -1,8 +1,8 @@
 from keras.models import Sequential
 from keras.layers import *
-from qlearning4k.games import Snake
+from lib.qlearning4k.games import Snake
 from keras.optimizers import *
-from qlearning4k import Agent
+from lib.qlearning4k import Agent
 
 from keras import backend as K
 K.set_image_dim_ordering('th')

@@ -18,7 +18,6 @@ class Pong(Game):
     paddle2_pos: List[float]
     paddle1_pos: List[float]
     ball_vel: List[Union[int, Any]]
-    HALF_PAD_HEIGHT: float
     game_over: bool
     # The controllable paddle
     paddle2_vel: int
@@ -33,13 +32,12 @@ class Pong(Game):
     HEIGHT: int
     snake_length: int
 
-    def __init__(self, width=30, height=20, pad_width=1, pad_height=3, maxScore=10, live_view=False, print_score=False):
+    def __init__(self, width=30, height=20, pad_width=1, pad_height=4, maxScore=10, live_view=False, print_score=False):
         self.print_score = print_score
         self.live_view = live_view
         self.maxScore = maxScore
         self.PAD_WIDTH = pad_width
         self.PAD_HEIGHT = pad_height
-        self.HALF_PAD_HEIGHT = pad_height // 2
         self.HEIGHT = height
         self.WIDTH = width
         self.paddle1_pos = [0, self.HEIGHT // 2]
@@ -84,50 +82,45 @@ class Pong(Game):
             self.paddle1_vel = 0
 
     def update_positions(self):
-
         # update paddle's vertical position, keep paddle on the screen
         self.move_paddle(self.paddle1_pos, self.paddle1_vel)
         self.move_paddle(self.paddle2_pos, self.paddle2_vel)
 
         # update ball
-        self.ball_pos[0] += int(self.ball_vel[0])
-        self.ball_pos[1] += int(self.ball_vel[1])
+        self.ball_pos[0] += self.ball_vel[0]
+        self.ball_pos[1] += self.ball_vel[1]
 
         # ball collision check on top and bottom walls
-        if int(self.ball_pos[1]) == 0 or int(self.ball_pos[1]) == self.HEIGHT:
+        if int(self.ball_pos[1]) == 0 or int(self.ball_pos[1]) == self.HEIGHT - 1:
             self.ball_vel[1] = - self.ball_vel[1]
 
-        # ball collison check on gutters or paddles
-        if int(self.ball_pos[0]) == 0:
-            if int(self.ball_pos[1]) in range(
-                    self.paddle1_pos[1] - self.HALF_PAD_HEIGHT, self.paddle1_pos[1] + self.HALF_PAD_HEIGHT, 1):
-                # reflect ball on left side
-                self.ball_vel[0] = -self.ball_vel[0]
-                self.ball_vel[0] *= 1.1
-                self.ball_vel[1] *= 1.1
+        # ball collision check on gutters or paddles
+        if int(self.ball_pos[0]) <= 0:
+            self.paddle_collision(x_cor=0, y_start=self.paddle1_pos[1], y_end=self.paddle1_pos[1] + self.PAD_HEIGHT)
+        if int(self.ball_pos[0]) >= self.WIDTH:
+            self.paddle_collision(x_cor=self.WIDTH - 1, y_start=self.paddle2_pos[1],
+                                  y_end=self.paddle2_pos[1] + self.PAD_HEIGHT)
+
+    def paddle_collision(self, x_cor, y_start, y_end):
+        if int(self.ball_pos[1]) in range(
+                y_start, y_end, 1):
+            self.ball_vel[0] = -1.1 * self.ball_vel[0]
+            self.ball_vel[1] *= 1.1
+        else:
+            # Scored
+            if x_cor == 0:
+                # Right player
+                self.l_score += 1
+                self.ball_init(True)
             else:
                 self.r_score += 1
-                if self.print_score:
-                    print("Score: ", self.l_score, " : ", self.r_score)
-                self.ball_init(True)
-
-        if int(self.ball_pos[0]) >= self.WIDTH - self.PAD_WIDTH and int(self.ball_pos[1]) in range(
-                self.paddle2_pos[1] - self.HALF_PAD_HEIGHT, self.paddle2_pos[1] + self.HALF_PAD_HEIGHT, 1):
-            self.ball_vel[0] = -self.ball_vel[0]
-            self.ball_vel[0] *= 1.1
-            self.ball_vel[1] *= 1.1
-        elif int(self.ball_pos[0]) >= self.WIDTH - self.PAD_WIDTH:
-            self.l_score += 1
+                self.ball_init(False)
             if self.print_score:
                 print("Score: ", self.l_score, " : ", self.r_score)
-            self.ball_init(False)
 
     def move_paddle(self, paddle_pos, paddle_vel):
-        if self.HALF_PAD_HEIGHT < paddle_pos[1] < self.HEIGHT - self.HALF_PAD_HEIGHT:
-            paddle_pos[1] += paddle_vel
-        elif paddle_pos[1] == self.HALF_PAD_HEIGHT and paddle_vel > 0:
-            paddle_pos[1] += paddle_vel
-        elif paddle_pos[1] == self.HEIGHT - self.HALF_PAD_HEIGHT and paddle_vel < 0:
+        next_pos = paddle_pos[1] + paddle_vel
+        if 0 < next_pos + self.PAD_HEIGHT < self.HEIGHT:
             paddle_pos[1] += paddle_vel
 
     def play(self, action):
@@ -145,19 +138,16 @@ class Pong(Game):
         canvas = np.zeros((self.WIDTH, self.HEIGHT))
 
         # Draw Ball
-        canvas[
-        self.ball_pos[0]: self.ball_pos[0] + 1,
-        self.ball_pos[1]: self.ball_pos[1] + 1
-        ] = 1
+        canvas[self.ball_pos[0], self.ball_pos[1]] = 1
 
         canvas[
         self.paddle1_pos[0]: self.paddle1_pos[0] + self.PAD_WIDTH,
-        self.paddle1_pos[1] - self.HALF_PAD_HEIGHT: self.paddle1_pos[1] + self.PAD_HEIGHT,
+        self.paddle1_pos[1]: self.paddle1_pos[1] + self.PAD_HEIGHT,
         ] = -.5
 
         canvas[
         self.paddle2_pos[0]: self.paddle2_pos[0] + self.PAD_WIDTH,
-        self.paddle2_pos[1] - self.HALF_PAD_HEIGHT: self.paddle2_pos[1] + self.PAD_HEIGHT,
+        self.paddle2_pos[1]: self.paddle2_pos[1] + self.PAD_HEIGHT,
         ] = .5
 
         ca = canvas.transpose()
